@@ -1097,11 +1097,13 @@ static void mhi_process_cmd_completion(struct mhi_controller *mhi_cntrl,
 
 	type = MHI_TRE_GET_CMD_TYPE(cmd_pkt);
 
-	if (type == MHI_CMD_TYPE_TSYNC) {
+	switch (type) {
+	case MHI_CMD_TYPE_TSYNC:
 		mhi_tsync = mhi_cntrl->mhi_tsync;
 		mhi_tsync->ccs = MHI_TRE_GET_EV_CODE(tre);
 		complete(&mhi_tsync->completion);
-	} else {
+		break;
+	default:
 		chan = MHI_TRE_GET_CMD_CHID(cmd_pkt);
 		if (chan >= mhi_cntrl->max_chan) {
 			MHI_ERR("invalid channel id %u\n", chan);
@@ -1112,6 +1114,7 @@ static void mhi_process_cmd_completion(struct mhi_controller *mhi_cntrl,
 		mhi_chan->ccs = MHI_TRE_GET_EV_CODE(tre);
 		complete(&mhi_chan->completion);
 		write_unlock_bh(&mhi_chan->lock);
+		break;
 	}
 
 	mhi_del_ring_element(mhi_cntrl, mhi_ring);
